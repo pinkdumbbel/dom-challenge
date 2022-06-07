@@ -1,5 +1,8 @@
 function Spotter(el, col, row) {
   this.$spotter = document.querySelector(el);
+  this.$score = document.querySelector('h1');
+  this.cloneSpotter = null;
+  this.el = el;
   this.col = col;
   this.row = row;
 
@@ -8,6 +11,7 @@ function Spotter(el, col, row) {
   this.rowLength = 100;
 
   this.createEl();
+  this.eventsBind();
 }
 
 Spotter.prototype.createEl = function () {
@@ -18,6 +22,8 @@ Spotter.prototype.createEl = function () {
   let cellCnt = 0;
   let cellColor;
 
+  //this.$score.innerText = `Score:${this.score}`;
+  this.$score.innerText = `Score:${this.score}`;
   for (let i = 0; i < col; i++) {
     const colEl = document.createElement('div');
     colEl.style.display = 'flex';
@@ -41,7 +47,44 @@ Spotter.prototype.createEl = function () {
       cellCnt++;
     }
     this.$spotter.appendChild(colEl);
+    this.$spotter.classList.add('shake');
+
+    setTimeout(() => {
+      if (this.$spotter.classList.contains('shake'))
+        this.$spotter.classList.remove('shake');
+    }, 800);
   }
+};
+
+Spotter.prototype.onClick = function (e) {
+  if (this.score === 9) {
+    alert('perfect!');
+    return;
+  }
+
+  const answer = e.target.dataset.answer;
+
+  if (answer) {
+    this.score++;
+    this.rowLength -= 5;
+    this.clearChild();
+    this.createEl();
+  } else {
+    this.score = 0;
+    this.rowLength = 100;
+    this.clearChild();
+    this.createEl();
+  }
+};
+
+Spotter.prototype.clearChild = function () {
+  while (this.$spotter.hasChildNodes()) {
+    this.$spotter.removeChild(this.$spotter.firstChild);
+  }
+};
+
+Spotter.prototype.eventsBind = function () {
+  this.$spotter.addEventListener('click', this.onClick.bind(this));
 };
 
 Spotter.prototype.getRandomColors = function () {
