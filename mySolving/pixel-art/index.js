@@ -22,10 +22,10 @@ PixelArt.prototype.createEl = function () {
       rowDiv.dataset.position = `${col}-${row}`;
 
       this.posArr.push([col, row]);
-      colDiv.appendChild(rowDiv);
+      colDiv.append(rowDiv);
     }
 
-    this.$grid.appendChild(colDiv);
+    this.$grid.append(colDiv);
     this.$grid.style.margin = '0 auto';
     this.$grid.style.width = `${50 * 10}px`;
     this.$grid.ondragstart = function () {
@@ -35,13 +35,10 @@ PixelArt.prototype.createEl = function () {
 };
 
 PixelArt.prototype.getSelectedEl = function (currentPos) {
-  const currentPosSplit = currentPos.split('-');
+  const [col, row] = currentPos.split('-');
   return this.posArr
     .filter((p) => {
-      return (
-        p[0].toString() === currentPosSplit[0] &&
-        p[1].toString() === currentPosSplit[1]
-      );
+      return p[0].toString() === col && p[1].toString() === row;
     })
     .map((p) => {
       return this.$grid.children[p[0]].children[p[1]];

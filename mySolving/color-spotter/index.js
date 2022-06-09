@@ -78,9 +78,7 @@ Spotter.prototype.onClick = function (e) {
 };
 
 Spotter.prototype.clearChild = function () {
-  while (this.$spotter.hasChildNodes()) {
-    this.$spotter.removeChild(this.$spotter.firstChild);
-  }
+  this.$spotter.innerHTML = '';
 };
 
 Spotter.prototype.eventsBind = function () {
