@@ -35,14 +35,7 @@ PixelArt.prototype.createEl = function () {
 };
 
 PixelArt.prototype.getSelectedEl = function (currentPos) {
-  const [col, row] = currentPos.split('-');
-  return this.posArr
-    .filter((p) => {
-      return p[0].toString() === col && p[1].toString() === row;
-    })
-    .map((p) => {
-      return this.$grid.children[p[0]].children[p[1]];
-    })[0];
+  return document.querySelector(`[data-position='${currentPos}']`);
 };
 
 PixelArt.prototype.setBgColor = function (currentPos, eventType) {

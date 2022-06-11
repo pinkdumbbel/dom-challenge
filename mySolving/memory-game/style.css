@@ -1,0 +1,51 @@
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#score {
+  display: flex;
+  width: 550px;
+  justify-content: space-between;
+}
+
+#memory {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.memory-block {
+  width: 150px;
+  height: 150px;
+  background: #e1e1e1;
+  border: 2px solid lightgray;
+  cursor: pointer;
+}
+
+.shake {
+  animation: shake 0.8s;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-8px);
+  }
+  20%,
+  40%,
+  60%,
+  80%,
+  100% {
+    transform: translateX(8px);
+  }
+}
