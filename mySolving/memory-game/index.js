@@ -3,14 +3,15 @@ function Memory(el) {
   this.$score = document.querySelectorAll('h2');
   this.$button = document.querySelector('button');
 
+  this.progressState = true;
   this.score = 0;
   this.highScore = 0;
   this.currentClickedOrder = 0;
-  this.clickedVal = 0;
   this.memoryBackground = 'e1e1e1';
 
   this.randomVals = [];
   this.clicedkVals = [];
+  this.timerIds = [];
 
   this.createEl();
   this.eventsBind();
@@ -34,10 +35,7 @@ Memory.prototype.getSelectedMemory = function (random) {
 };
 
 Memory.prototype.compareValues = function () {
-  const randomVal = JSON.stringify(this.randomVals);
-  const clickedVal = JSON.stringify(this.clicedkVals);
-
-  return randomVal === clickedVal;
+  return JSON.stringify(this.randomVals) === JSON.stringify(this.clicedkVals);
 };
 
 Memory.prototype.variableInitialization = function () {
@@ -46,36 +44,69 @@ Memory.prototype.variableInitialization = function () {
   this.clicedkVals = [];
 };
 
+Memory.prototype.gameInitialization = function () {
+  this.variableInitialization();
+  this.score = 0;
+  this.$button.disabled = false;
+
+  this.timerIds.forEach((timerId) => {
+    clearTimeout(timerId);
+  });
+
+  setTimeout(() => {
+    if (this.$memory.classList.contains('shake'))
+      this.$memory.classList.remove('shake');
+  }, 800);
+};
+
 Memory.prototype.checkMemoryAndSetBgColor = function (elem) {
-  const score = this.score + 1;
   const idx = this.currentClickedOrder;
-  let flag = false;
+  let selectedFlag = false;
 
   if (
-    score === this.randomVals.length &&
+    this.score === this.randomVals.length - 1 &&
     this.randomVals[idx] === this.clicedkVals[idx]
   ) {
     this.currentClickedOrder++;
     elem.style.background = 'blue';
-    flag = true;
+    selectedFlag = true;
   } else {
     elem.style.background = 'red';
     this.$memory.classList.add('shake');
 
-    this.score = 0;
-    this.variableInitialization();
+    this.gameInitialization();
 
     const [$score] = this.$score;
     $score.textContent = `Score: ${this.score}`;
 
-    flag = false;
+    selectedFlag = false;
   }
 
   setTimeout(() => {
     elem.style.background = '';
   }, 500);
 
-  return flag;
+  return selectedFlag;
+};
+
+Memory.prototype.setRandomMemory = function () {
+  this.progressState = true;
+  let timerCnt = 0;
+  for (let i = 0; i <= this.score; i++) {
+    const randomVal = this.getRandomVal();
+    const selectedMemory = this.getSelectedMemory(randomVal);
+    this.randomVals.push(randomVal);
+    const timerId = setTimeout(() => {
+      selectedMemory.style.background = 'blue';
+      setTimeout(() => {
+        selectedMemory.style.background = '';
+        if (this.score === timerCnt) this.progressState = false;
+        timerCnt++;
+      }, 500);
+    }, 1000 * (i + 1));
+
+    this.timerIds.push(timerId);
+  }
 };
 
 Memory.prototype.onClickStart = function (e) {
@@ -83,41 +114,30 @@ Memory.prototype.onClickStart = function (e) {
   this.setRandomMemory();
 };
 
-Memory.prototype.setRandomMemory = function () {
-  for (let i = 0; i <= this.score; i++) {
-    setTimeout(() => {
-      const randomVal = this.getRandomVal();
-      const selectedMemory = this.getSelectedMemory(randomVal);
-      this.randomVals.push(randomVal);
-
-      selectedMemory.style.background = 'blue';
-
-      setTimeout(() => {
-        selectedMemory.style.background = '';
-      }, 500);
-    }, 1000 * (i + 1));
-  }
-};
-
 Memory.prototype.onClickMemory = function (e) {
+  if (!this.$button.disabled || this.progressState) return;
+
   const targetMemory = e.target;
   const clickedMemory = Number(targetMemory.dataset.cell);
 
   this.clicedkVals.push(clickedMemory);
 
+  const selectedFlag = this.checkMemoryAndSetBgColor(targetMemory);
+
   if (
     this.clicedkVals.length === this.randomVals.length &&
-    this.compareValues()
+    this.compareValues() &&
+    selectedFlag
   ) {
     this.score++;
-    this.highScore++;
+    this.score > this.highScore && this.highScore++;
 
     const [$score, $highScore] = this.$score;
     $score.textContent = `Score: ${this.score}`;
     $highScore.textContent = `High Score: ${this.highScore}`;
 
-    this.setRandomMemory();
     this.variableInitialization();
+    this.setRandomMemory();
   }
 };
 
@@ -125,5 +145,4 @@ Memory.prototype.eventsBind = function () {
   this.$button.addEventListener('click', this.onClickStart.bind(this));
   this.$memory.addEventListener('click', this.onClickMemory.bind(this));
 };
-
 new Memory('memory');
